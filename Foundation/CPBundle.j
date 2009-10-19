@@ -25,12 +25,14 @@
 
 @import "CPURLRequest.j"
 
+
+var MainBundlePath;
+
 /*! 
     @class CPBundle
     @ingroup foundation
     @brief Groups information about an application's code & resources.
 */
-
 @implementation CPBundle : CPObject
 {
 }
@@ -50,9 +52,14 @@
     return objj_bundleForClass(aClass);
 }
 
++ (void)setMainBundlePath:(CPString)aPath
+{
+    MainBundlePath = aPath;
+}
+
 + (CPBundle)mainBundle
 {
-    return [CPBundle bundleWithPath:"Info.plist"];
+    return [CPBundle bundleWithPath:MainBundlePath || "Info.plist"];
 }
 
 - (id)initWithPath:(CPString)aPath
