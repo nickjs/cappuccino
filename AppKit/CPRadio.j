@@ -175,6 +175,10 @@ var CPRadioRadioGroupKey    = @"CPRadioRadioGroupKey";
 {
     CPSet   _radios;
     CPRadio _selectedRadio;
+    
+    id      _boundObjectEditor;
+    
+    id      value;
 }
 
 - (id)init
@@ -213,6 +217,12 @@ var CPRadioRadioGroupKey    = @"CPRadioRadioGroupKey";
 
     [_selectedRadio setState:CPOffState];
     _selectedRadio = aRadio;
+    
+    if (_boundObjectEditor)
+    {
+        [_boundObjectEditor objectDidBeginEditing:self];
+        [_boundObjectEditor objectDidEndEditing:self];
+    }
 }
 
 - (CPRadio)selectedRadio
@@ -223,6 +233,32 @@ var CPRadioRadioGroupKey    = @"CPRadioRadioGroupKey";
 - (CPArray)radios
 {
     return [_radios allObjects];
+}
+
+- (id)value
+{
+    return [_selectedRadio tag];
+}
+
+- (void)setValue:(id)aValue
+{
+    for (var i = 0, count = [_radios count]; i < count; i++)
+    {
+        var radio = _radios[i];
+        if ([radio tag] == aValue)
+        {
+            [radio performClick:nil];
+            break;
+        }
+    }
+}
+
+- (void)bind:(CPString)aBinding toObject:(id)anObject withKeyPath:(CPString)aKeyPath options:(CPDictionary)aDictionary
+{
+    [super bind:aBinding toObject:anObject withKeyPath:aKeyPath options:aDictionary];
+    
+    if (aBinding == @"value" && [anObject respondsToSelector:@selector(objectDidBeginEditing:)])
+        _boundObjectEditor = anObject;
 }
 
 @end

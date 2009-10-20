@@ -11,8 +11,8 @@
 
     Class           _objectClass;
 
-    BOOL            _isEditable;
-    BOOL            _automaticallyPreparesContent;
+    BOOL            _isEditable                     @accessors(getter=isEditable, setter=setEditable:);
+    BOOL            _automaticallyPreparesContent   @accessors(property=automaticallyPreparesContent);
 
     CPCountedSet    _observedKeys;
 }
@@ -91,16 +91,6 @@
     return [self content];
 }
 
-- (void)setAutomaticallyPreparesContent:(BOOL)shouldAutomaticallyPrepareContent
-{
-    _automaticallyPreparesContent = shouldAutomaticallyPrepareContent;
-}
-
-- (BOOL)automaticallyPreparesContent
-{
-    return _automaticallyPreparesContent;
-}
-
 - (void)prepareContent
 {
     [self setContent:[self newObject]];
@@ -125,7 +115,7 @@
 {
     [self setContent:anObject];
 
-    [[CPKeyValueBinding getBinding:@"contentObject" forObject:self] reverseSetValueFor:@"contentObject"];
+    [[self bindingObjectForBinding:@"contentObject"] setValueOfDestinationFromBinding];
 }
 
 - (void)removeObject:(id)anObject
@@ -133,7 +123,7 @@
     if ([self content] === anObject)
         [self setContent:nil];
 
-    [[CPKeyValueBinding getBinding:@"contentObject" forObject:self] reverseSetValueFor:@"contentObject"];
+    [[self bindingObjectForBinding:@"contentObject"] setValueOfDestinationFromBinding];
 }
 
 - (void)add:(id)aSender
@@ -158,16 +148,6 @@
     return [self isEditable] && [[self selectedObjects] count];
 }
 
-- (void)setEditable:(BOOL)shouldBeEditable
-{
-    _isEditable = shouldBeEditable;
-}
-
-- (BOOL)isEditable
-{
-    return _isEditable;
-}
-
 - (CPArray)selectedObjects
 {
     return [[_CPObservableArray alloc] initWithObjects:[_contentObject] count:1];
@@ -188,7 +168,7 @@
 {
     if (_selection === undefined || _selection === nil)
         _selection = [[CPControllerSelectionProxy alloc] initWithController:self];
-
+    
     [_selection controllerDidChange];
     [self didChangeValueForKey:@"selection"];
 }

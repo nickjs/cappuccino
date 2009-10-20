@@ -61,4 +61,15 @@
     return self;
 }
 
+- (void)setState:(BOOL)aFlag
+{
+    [super setState:aFlag];
+    
+    if (_boundObjectEditor)
+    {
+        [_boundObjectEditor objectDidBeginEditing:self];
+        [_boundObjectEditor objectDidEndEditing:self];
+    }
+}
+
 @end

@@ -103,6 +103,9 @@ var CPControlBlackColor     = [CPColor blackColor];
     CGPoint             _previousTrackingLocation;
 
     CPString            _toolTip;
+    
+    // Bindings Support
+    id                  _boundObjectEditor;
 }
 
 + (CPDictionary)themeAttributes
@@ -190,11 +193,6 @@ var CPControlBlackColor     = [CPColor blackColor];
 */
 - (void)sendAction:(SEL)anAction to:(id)anObject
 {
-    var theBinding = [CPKeyValueBinding getBinding:CPValueBinding forObject:self];
-
-    if (theBinding)
-        [theBinding reverseSetValueFor:@"objectValue"];
-
     [CPApp sendAction:anAction to:anObject from:self];
 }
 
@@ -501,6 +499,8 @@ var CPControlBlackColor     = [CPColor blackColor];
         return;
 
     [[CPNotificationCenter defaultCenter] postNotificationName:CPControlTextDidBeginEditingNotification object:self userInfo:[CPDictionary dictionaryWithObject:[note object] forKey:"CPFieldEditor"]];
+    
+    [_boundObjectEditor objectDidBeginEditing:self];
 }
 
 - (void)textDidChange:(CPNotification)note 
@@ -519,6 +519,22 @@ var CPControlBlackColor     = [CPColor blackColor];
         return;
 
     [[CPNotificationCenter defaultCenter] postNotificationName:CPControlTextDidEndEditingNotification object:self userInfo:[CPDictionary dictionaryWithObject:[note object] forKey:"CPFieldEditor"]];
+    
+    [_boundObjectEditor objectDidEndEditing:self];
+}
+
+- (BOOL)commitEditing
+{
+    [self resignFirstResponder];
+    return YES;
+}
+
+- (void)bind:(CPString)aBinding toObject:(id)anObject withKeyPath:(CPString)aKeyPath options:(CPDictionary)aDictionary
+{
+    [super bind:aBinding toObject:anObject withKeyPath:aKeyPath options:aDictionary];
+    
+    if (aBinding == @"value" && [anObject respondsToSelector:@selector(objectDidBeginEditing:)])
+        _boundObjectEditor = anObject;
 }
 
 #define BRIDGE(UPPERCASE, LOWERCASE, ATTRIBUTENAME) \
